@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+
+    <style>
+        @font-face {
+            font-family: "Monocraft";
+            src: url("https://cdn.jsdelivr.net/gh/IdreesInc/Monocraft@main/dist/Monocraft-ttf/Monocraft.ttf") format("truetype");
+            font-display: swap;
+        }
+
+        :root {
+            --bg: #090f13;
+            --panel: rgba(12, 20, 25, 0.97);
+            --border: #40545d;
+            --accent: #79b9e8;
+            --accent-light: #a8d7f5;
+            --text: #f1f5f6;
+            --muted: #b2c0c5;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--text);
+            background-color: var(--bg);
+            background-image: url("https://www.minecraft.net/content/dam/minecraftnet/games/minecraft/key-art/Java-Bedrock_1920x1080.jpg");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            font-family: "Monocraft", monospace;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background: rgba(5, 11, 15, 0.78);
+            pointer-events: none;
+        }
+
+        input, button {
+            font: inherit;
+        }
+
+        .login-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 440px;
+        }
+
+        .brand {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .brand-title {
+            color: var(--accent-light);
+            font-size: 21px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            line-height: 1.8;
+        }
+
+        .login-panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .panel-header {
+            padding: 17px 23px;
+            background: #172832;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-header h1 {
+            font-size: 16px;
+            font-weight: bold;
+            color: #f4f8fa;
+        }
+
+        .panel-body {
+            padding: 25px 23px;
+        }
+
+        .form-group {
+            margin-bottom: 21px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 9px;
+            color: #d0dce1;
+            font-size: 12px;
+        }
+
+        .form-control {
+            display: block;
+            width: 100%;
+            min-height: 49px;
+            padding: 12px 14px;
+            color: white;
+            background: #0b151b;
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            outline: none;
+            font-family: "Monocraft", monospace;
+            font-size: 13px;
+        }
+
+        .form-control::placeholder {
+            color: #71838b;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent);
+        }
+
+        .login-button {
+            width: 100%;
+            min-height: 49px;
+            padding: 12px;
+            margin-top: 5px;
+            color: white;
+            background: #315f7b;
+            border: 1px solid #6e9fbd;
+            border-radius: 3px;
+            font-family: "Monocraft", monospace;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .login-button:hover {
+            background: #3d7595;
+        }
+
+        .login-button:active {
+            transform: translateY(1px);
+        }
+
+        .message {
+            padding: 12px 14px;
+            margin-bottom: 20px;
+            border-radius: 3px;
+            font-size: 11px;
+            line-height: 1.7;
+            overflow-wrap: anywhere;
+        }
+
+        .message.error {
+            color: #ffc3c3;
+            background: #402327;
+            border: 1px solid #9c535b;
+        }
+
+        .message.success {
+            color: #b6f2d2;
+            background: #173b2d;
+            border: 1px solid #438666;
+        }
+
+        @media (max-width: 480px) {
+            .brand-title {
+                font-size: 18px;
+            }
+
+            .panel-body {
+                padding: 21px 17px;
+            }
+
+            .panel-header {
+                padding: 17px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-container">
+
+        <div class="brand">
+            <div class="brand-title">
+                ANTI SNIPER<br>
+                BLACKLIST
+            </div>
+        </div>
+
+        <div class="login-panel">
+
+            <div class="panel-header">
+                <h1>LOGIN</h1>
+            </div>
+
+            <div class="panel-body">
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="message {{ 'error' if category == 'error' else 'success' }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="{{ url_for('login') }}">
+
+                    <div class="form-group">
+                        <label for="username">USERNAME</label>
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            class="form-control"
+                            placeholder="Username"
+                            autocomplete="username"
+                            required
+                            autofocus
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">PASSWORD</label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            class="form-control"
+                            placeholder="Password"
+                            autocomplete="current-password"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" class="login-button">
+                        LOGIN
+                    </button>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

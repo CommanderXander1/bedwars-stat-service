@@ -1,0 +1,1860 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anti Sniper Blacklist</title>
+
+    <style>
+        @font-face {
+            font-family: "Monocraft";
+            src: url("https://cdn.jsdelivr.net/gh/IdreesInc/Monocraft@main/dist/Monocraft-ttf/Monocraft.ttf") format("truetype");
+            font-display: swap;
+        }
+
+        :root {
+            --bg: #090f13;
+            --panel: rgba(12, 20, 25, 0.96);
+            --panel-light: #17252d;
+            --panel-hover: #21343e;
+            --border: #40545d;
+            --accent: #79b9e8;
+            --accent-light: #a8d7f5;
+            --text: #f1f5f6;
+            --muted: #b2c0c5;
+            --red: #e47777;
+            --green: #75d6a6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            color: var(--text);
+            background-color: var(--bg);
+            background-image: url("https://www.minecraft.net/content/dam/minecraftnet/games/minecraft/key-art/Java-Bedrock_1920x1080.jpg");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            font-family: "Monocraft", monospace;
+            font-size: 15px;
+            line-height: 1.65;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background: rgba(5, 11, 15, 0.76);
+            pointer-events: none;
+        }
+
+        button, input, select, textarea {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            position: fixed;
+            inset: 0 auto 0 0;
+            width: 235px;
+            height: 100vh;
+            padding: 28px 17px;
+            background: rgba(8, 15, 19, 0.98);
+            border-right: 1px solid var(--border);
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 16px;
+            line-height: 2;
+            color: var(--accent-light);
+            padding: 7px 9px;
+            margin-bottom: 38px;
+            letter-spacing: 1px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 14px 13px;
+            margin-bottom: 8px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 13px;
+            border: 1px solid transparent;
+            border-radius: 3px;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .nav-link:hover {
+            color: white;
+            background: var(--panel-hover);
+        }
+
+        .nav-link.active {
+            color: white;
+            background: #1b303b;
+            border-color: var(--accent);
+            box-shadow: inset 4px 0 var(--accent);
+        }
+
+        /* MAIN LAYOUT */
+
+        .main {
+            min-height: 100vh;
+            margin-left: 235px;
+            min-width: 0;
+        }
+
+        .topbar {
+            min-height: 76px;
+            padding: 13px 30px;
+            background: rgba(8, 15, 19, 0.97);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .top-right {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 13px;
+        }
+
+        .user-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-right: 6px;
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        .user-head {
+            width: 38px;
+            height: 38px;
+            object-fit: cover;
+            image-rendering: pixelated;
+            border: 1px solid var(--border);
+            border-radius: 3px;
+        }
+
+        /* BUTTONS */
+
+        .btn {
+            min-height: 43px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 15px;
+            color: white;
+            border: 1px solid transparent;
+            border-radius: 3px;
+            font-family: "Monocraft", monospace;
+            font-size: 12px;
+            white-space: nowrap;
+            transition: background 0.15s, border-color 0.15s;
+            font-weight: bold;
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn-blue, .btn-red {
+            background: #315f7b;
+            border-color: #6e9fbd;
+        }
+
+        .btn-blue:hover, .btn-red:hover {
+            background: #3d7595;
+        }
+
+        .btn-gray {
+            background: #263740;
+            border-color: #536873;
+        }
+
+        .btn-gray:hover {
+            background: #344b56;
+        }
+
+        /* CONTENT */
+
+        .content {
+            width: 100%;
+            max-width: 1550px;
+            margin: 0 auto;
+            padding: 30px 32px;
+        }
+
+        .page-title {
+            margin-bottom: 23px;
+            font-size: 24px;
+            line-height: 1.6;
+            letter-spacing: 1px;
+            font-weight: bold;
+            color: #f4f8fa;
+        }
+
+        .page-title::after {
+            content: "";
+            display: block;
+            width: 72px;
+            height: 4px;
+            margin-top: 9px;
+            background: var(--accent);
+        }
+
+        /* STATISTICS */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .stat-card {
+            position: relative;
+            min-width: 0;
+            padding: 19px 21px;
+            overflow: hidden;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+        }
+
+        .stat-label {
+            position: relative;
+            z-index: 1;
+            color: var(--muted);
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+
+        .stat-value {
+            position: relative;
+            z-index: 1;
+            color: var(--accent-light);
+            font-size: 31px;
+            font-weight: bold;
+        }
+
+        .stat-card.recent .stat-value {
+            color: var(--green);
+        }
+
+        /* TAG SUMMARY */
+
+        .tag-summary {
+            padding: 17px 20px;
+            margin-bottom: 23px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+        }
+
+        .tag-summary-title {
+            margin-bottom: 13px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .tag-counts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+        }
+
+        .tag-count {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            min-width: 145px;
+            padding: 10px 12px;
+            background: #1b303b;
+            border: 1px solid #426174;
+            border-radius: 3px;
+        }
+
+        .tag-count-name {
+            color: #d6e5ec;
+            font-size: 13px;
+            overflow-wrap: anywhere;
+        }
+
+        .tag-count-number {
+            color: var(--accent-light);
+            font-size: 13px;
+        }
+
+        .no-tags {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        /* BLACKLIST TABLE */
+
+        .section {
+            min-width: 0;
+            overflow: hidden;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.25);
+        }
+
+        .section-header {
+            min-height: 65px;
+            padding: 13px 19px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 13px;
+            flex-wrap: wrap;
+            background: #172832;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .section-actions {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .search-container {
+            padding: 15px 19px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .search-input {
+            width: 100%;
+            min-width: 0;
+            min-height: 48px;
+            padding: 11px 14px;
+            color: white;
+            background: #0b151b;
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            outline: none;
+            font-family: "Monocraft", monospace;
+            font-size: 14px;
+        }
+
+        .search-input::placeholder {
+            color: #84969e;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 420px;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            padding: 15px 19px;
+            color: var(--muted);
+            background: #1a2a33;
+            font-size: 12px;
+            font-weight: normal;
+        }
+
+        td {
+            padding: 13px 19px;
+            border-top: 1px solid rgba(64, 84, 93, 0.7);
+            font-size: 13px;
+        }
+
+        tbody tr {
+            cursor: pointer;
+            transition: background 0.12s;
+        }
+
+        tbody tr:hover {
+            background: #1a2d37;
+        }
+
+        .player-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .player-head {
+            width: 38px;
+            height: 38px;
+            flex-shrink: 0;
+            object-fit: cover;
+            image-rendering: pixelated;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+        }
+
+        .player-name {
+            overflow-wrap: anywhere;
+        }
+
+        .tag {
+            display: inline-block;
+            max-width: 100%;
+            padding: 7px 10px;
+            color: #d6e9f4;
+            background: #203b49;
+            border: 1px solid #52768a;
+            border-radius: 3px;
+            font-size: 12px;
+            overflow-wrap: anywhere;
+        }
+
+        .player-row[hidden] {
+            display: none;
+        }
+
+        .empty-state {
+            padding: 38px 16px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        /* MODALS */
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            background: rgba(2, 7, 10, 0.86);
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-box {
+            width: 100%;
+            max-width: 550px;
+            max-height: 90vh;
+            overflow-y: auto;
+            background: #111e25;
+            border: 1px solid #587180;
+            border-radius: 4px;
+            box-shadow: 0 15px 60px rgba(0, 0, 0, 0.6);
+        }
+
+        .modal-header {
+            min-height: 63px;
+            padding: 14px 19px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #203541;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-header h2 {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .close-btn {
+            padding: 0 4px;
+            color: var(--muted);
+            background: transparent;
+            border: none;
+            font-size: 28px;
+        }
+
+        .close-btn:hover {
+            color: white;
+        }
+
+        .modal-body {
+            padding: 22px;
+        }
+
+        /* FORMS */
+
+        .form-group {
+            margin-bottom: 19px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 9px;
+            color: #d0dce1;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .form-control {
+            display: block;
+            width: 100%;
+            min-height: 48px;
+            padding: 11px 13px;
+            color: white;
+            background: #0b151b;
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            outline: none;
+            font-family: "Monocraft", monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent);
+        }
+
+        select.form-control {
+            cursor: pointer;
+        }
+
+        textarea.form-control {
+            min-height: 110px;
+            resize: vertical;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding-top: 7px;
+        }
+
+        /* PLAYER PROFILE DASHBOARD */
+
+        #profileModal .modal-box {
+            max-width: 780px;
+            background: #101d24;
+            border: 2px solid #587180;
+        }
+
+        #profileModal .modal-header {
+            min-height: 72px;
+            padding: 16px 24px;
+            background: #172c37;
+        }
+
+        #profileModal .modal-header h2 {
+            font-size: 19px;
+            letter-spacing: 1px;
+        }
+
+        #profileModal .modal-body {
+            padding: 20px;
+        }
+
+        .profile-hero {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+            padding: 16px;
+            margin-bottom: 16px;
+            background: #0c1920;
+            border: 1px solid #344e5b;
+            border-radius: 6px;
+        }
+
+        .profile-head {
+            width: 112px;
+            height: 112px;
+            flex-shrink: 0;
+            object-fit: cover;
+            image-rendering: pixelated;
+            background: #17252d;
+            border: 4px solid #62b8e8;
+            border-radius: 8px;
+            padding: 4px;
+        }
+
+        .profile-identity {
+            min-width: 0;
+        }
+
+        .profile-name {
+            margin-bottom: 12px;
+            color: #f4f8fa;
+            font-size: 25px;
+            font-weight: bold;
+            line-height: 1.5;
+            overflow-wrap: anywhere;
+        }
+
+        .profile-tag {
+            display: inline-block;
+            padding: 7px 13px;
+            color: #fff0f0;
+            background: #7e3037;
+            border: 1px solid #c96b73;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: bold;
+            overflow-wrap: anywhere;
+        }
+
+        .profile-details {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .profile-detail {
+            display: flex;
+            align-items: flex-start;
+            gap: 13px;
+            min-width: 0;
+            min-height: 94px;
+            padding: 15px;
+            background: #0d1b23;
+            border: 1px solid #344e5b;
+            border-radius: 5px;
+            transition: background 0.15s, border-color 0.15s;
+        }
+
+        .profile-detail:hover {
+            background: #142832;
+            border-color: #587c90;
+        }
+
+        .detail-icon {
+            width: 32px;
+            flex-shrink: 0;
+            color: var(--accent);
+            font-size: 24px;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .detail-content {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .detail-label {
+            margin-bottom: 6px;
+            color: #9eafb8;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 0.7px;
+            text-transform: uppercase;
+        }
+
+        .detail-value {
+            color: #f0f4f6;
+            font-size: 13px;
+            line-height: 1.8;
+            overflow-wrap: anywhere;
+            white-space: pre-wrap;
+        }
+
+        .detail-value.red {
+            color: #f08080;
+        }
+
+        /* STATS SECTION */
+
+        .profile-stats {
+            overflow: hidden;
+            background: #0c1920;
+            border: 1px solid #426174;
+            border-radius: 6px;
+        }
+
+        .profile-stats-header {
+            min-height: 60px;
+            padding: 13px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            background: #142b36;
+            border-bottom: 1px solid #344e5b;
+        }
+
+        .profile-stats-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #eaf4f9;
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .profile-stats-title span {
+            color: var(--accent);
+            font-size: 23px;
+        }
+
+        .stats-status {
+            padding: 6px 12px;
+            color: #c7e1ef;
+            background: #203b49;
+            border: 1px solid #426174;
+            border-radius: 20px;
+            font-size: 10px;
+        }
+
+        .profile-stats-body {
+            padding: 20px;
+        }
+
+        .stats-empty {
+            min-height: 105px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            text-align: left;
+            color: #aebbc1;
+        }
+
+        .stats-empty-icon {
+            flex-shrink: 0;
+            color: #8299a5;
+            font-size: 32px;
+        }
+
+        .stats-empty-title {
+            margin-bottom: 4px;
+            color: #d7e0e4;
+            font-size: 13px;
+        }
+
+        .stats-empty-description {
+            color: #8799a2;
+            font-size: 11px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .player-stat {
+            min-width: 0;
+            padding: 13px;
+            background: #142832;
+            border: 1px solid #344e5b;
+            border-radius: 4px;
+        }
+
+        .player-stat-label {
+            margin-bottom: 8px;
+            color: #9eafb8;
+            font-size: 10px;
+            text-transform: uppercase;
+            overflow-wrap: anywhere;
+        }
+
+        .player-stat-value {
+            color: var(--accent-light);
+            font-size: 19px;
+            font-weight: bold;
+            overflow-wrap: anywhere;
+        }
+
+        #profileModal .modal-footer {
+            margin-top: 17px;
+            padding-top: 16px;
+            border-top: 1px solid #344e5b;
+        }
+
+        #profileModal .modal-footer .btn {
+            min-width: 125px;
+        }
+
+        /* MESSAGES */
+
+        .message {
+            display: none;
+            padding: 12px 14px;
+            margin-bottom: 16px;
+            border-radius: 3px;
+            font-size: 12px;
+            line-height: 1.7;
+            overflow-wrap: anywhere;
+        }
+
+        .message.success {
+            display: block;
+            color: #b6f2d2;
+            background: #173b2d;
+            border: 1px solid #438666;
+        }
+
+        .message.error {
+            display: block;
+            color: #ffc3c3;
+            background: #402327;
+            border: 1px solid #9c535b;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 850px) {
+            .sidebar {
+                width: 195px;
+            }
+
+            .main {
+                margin-left: 195px;
+            }
+
+            .content {
+                padding: 23px 18px;
+            }
+        }
+
+        @media (max-width: 620px) {
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                padding: 12px 14px;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .logo {
+                margin: 0 0 8px;
+                padding: 3px;
+                font-size: 13px;
+            }
+
+            .nav-link {
+                display: inline-block;
+                padding: 10px;
+                margin: 0 5px 0 0;
+                font-size: 11px;
+            }
+
+            .main {
+                margin-left: 0;
+            }
+
+            .topbar {
+                min-height: 62px;
+                padding: 10px 13px;
+            }
+
+            .content {
+                padding: 19px 12px;
+            }
+
+            .page-title {
+                font-size: 20px;
+            }
+
+            .profile-details {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 420px) {
+            .stats {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .stat-card {
+                padding: 13px;
+            }
+
+            .stat-label {
+                font-size: 10px;
+            }
+
+            .stat-value {
+                font-size: 24px;
+            }
+
+            .user-display span {
+                display: none;
+            }
+
+            .top-right {
+                gap: 7px;
+            }
+
+            .btn {
+                padding: 9px 10px;
+                font-size: 10px;
+            }
+
+            .tag-count {
+                flex: 1 1 100%;
+            }
+
+            .section-header {
+                align-items: flex-start;
+            }
+
+            .section-actions {
+                width: 100%;
+            }
+
+            .section-actions .btn {
+                width: 100%;
+            }
+
+            #profileModal .modal-body {
+                padding: 13px;
+            }
+
+            .profile-hero {
+                gap: 13px;
+                padding: 12px;
+            }
+
+            .profile-head {
+                width: 78px;
+                height: 78px;
+            }
+
+            .profile-name {
+                font-size: 17px;
+            }
+
+            .profile-tag {
+                font-size: 10px;
+            }
+
+            .profile-detail {
+                min-height: 80px;
+                padding: 12px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .stats-empty {
+                gap: 9px;
+            }
+
+            .stats-empty-icon {
+                font-size: 24px;
+            }
+
+            .stats-empty-title {
+                font-size: 11px;
+            }
+
+            .stats-empty-description {
+                font-size: 9px;
+            }
+        }
+    </style>
+</head>
+
+<body
+    data-current-user="{{ session.get('username', '') }}"
+    data-default-head="{{ url_for('static', filename='player_heads/default.png') }}"
+>
+
+    <aside class="sidebar">
+        <div class="logo">
+            ANTI SNIPER<br>
+            BLACKLIST
+        </div>
+
+        <a href="{{ url_for('home') }}" class="nav-link active">
+            BLACKLIST
+        </a>
+
+        <a href="{{ url_for('home') }}" class="nav-link">
+            GAMES
+        </a>
+    </aside>
+
+    <main class="main">
+
+        <header class="topbar">
+            <div class="top-right">
+
+                <div class="user-display">
+                    <img
+                        class="user-head"
+                        src="https://api.mcheads.org/head/{{ session.get('username', 'default')|urlencode }}/32"
+                        onerror="this.onerror=null; this.src=document.body.dataset.defaultHead;"
+                        alt="Player head"
+                    >
+                    <span>{{ session.get('username', 'Player') }}</span>
+                </div>
+
+                <button
+                    class="btn btn-blue"
+                    onclick="openModal('whitelistModal')"
+                >
+                    WHITELIST USER
+                </button>
+
+                <button
+                    class="btn btn-gray"
+                    onclick="window.location.href='{{ url_for('logout') }}'"
+                >
+                    LOGOUT
+                </button>
+
+            </div>
+        </header>
+
+        <div class="content">
+
+            <h1 class="page-title">BLACKLIST</h1>
+
+            <div class="stats">
+
+                <div class="stat-card">
+                    <div class="stat-label">TOTAL BLACKLISTED</div>
+                    <div class="stat-value" id="totalPlayers">
+                        {{ total_players }}
+                    </div>
+                </div>
+
+                <div class="stat-card recent">
+                    <div class="stat-label">ADDED IN LAST 7 DAYS</div>
+                    <div class="stat-value" id="recentPlayers">
+                        {{ recent_players }}
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="tag-summary">
+                <div class="tag-summary-title">BLACKLIST TAGS</div>
+
+                <div class="tag-counts" id="tagCounts">
+                    {% for tag, count in tag_counts.items() %}
+                        <div class="tag-count">
+                            <span class="tag-count-name">{{ tag }}</span>
+                            <span class="tag-count-number">{{ count }}</span>
+                        </div>
+                    {% else %}
+                        <span class="no-tags">No tags found.</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <section class="section">
+
+                <div class="section-header">
+                    <div class="section-title">SEARCH BLACKLIST</div>
+
+                    <div class="section-actions">
+                        <button
+                            class="btn btn-blue"
+                            onclick="openModal('addModal')"
+                        >
+                            + ADD PLAYER
+                        </button>
+                    </div>
+                </div>
+
+                <div class="search-container">
+                    <input
+                        type="text"
+                        id="searchInput"
+                        class="search-input"
+                        placeholder="Search players or tags..."
+                        autocomplete="off"
+                        aria-label="Search blacklist"
+                    >
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>PLAYER</th>
+                                <th>TAG</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="playerTable">
+
+                            {% for player in players %}
+
+                                {% set player_name = player[0] or 'Unknown' %}
+                                {% set player_tag = player[2] or 'Uncategorized' %}
+
+                                <tr
+                                    class="player-row"
+                                    data-search="{{ (player_name ~ ' ' ~ player_tag)|lower }}"
+                                    data-player="{{ player|tojson|forceescape }}"
+                                >
+                                    <td>
+                                        <div class="player-cell">
+                                            <img
+                                                class="player-head"
+                                                src="https://api.mcheads.org/head/{{ player_name|urlencode }}/32"
+                                                onerror="this.onerror=null; this.src=document.body.dataset.defaultHead;"
+                                                alt="{{ player_name }}'s Minecraft head"
+                                                loading="lazy"
+                                            >
+
+                                            <span class="player-name">
+                                                {{ player_name }}
+                                            </span>
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <span class="tag">{{ player_tag }}</span>
+                                    </td>
+                                </tr>
+
+                            {% else %}
+                                <tr class="empty-row">
+                                    <td colspan="2" class="empty-state">
+                                        No players found.
+                                    </td>
+                                </tr>
+                            {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+
+            </section>
+        </div>
+    </main>
+
+    <!-- ADD PLAYER MODAL -->
+
+    <div class="modal" id="addModal">
+        <div class="modal-box">
+
+            <div class="modal-header">
+                <h2>ADD PLAYER</h2>
+                <button
+                    class="close-btn"
+                    onclick="closeModal('addModal')"
+                    aria-label="Close"
+                >&times;</button>
+            </div>
+
+            <div class="modal-body">
+
+                <div id="addMessage" class="message"></div>
+
+                <form id="addForm">
+
+                    <div class="form-group">
+                        <label>PLAYER USERNAME</label>
+                        <input
+                            type="text"
+                            name="username"
+                            class="form-control"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label>BLACKLIST TAG</label>
+                        <select
+                            name="tag"
+                            class="form-control"
+                            required
+                        >
+                            <option value="" selected disabled></option>
+                            <option value="blatant">Blatant</option>
+                            <option value="closet">Closet</option>
+                            <option value="sniper">Sniper</option>
+                            <option value="booster">Booster</option>
+                            <option value="toggler">Toggler</option>
+                            <option value="alt">Alt</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>NOTE / REASON</label>
+                        <textarea
+                            name="note"
+                            class="form-control"
+                        ></textarea>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-gray"
+                            onclick="closeModal('addModal')"
+                        >
+                            CANCEL
+                        </button>
+
+                        <button type="submit" class="btn btn-blue">
+                            ADD PLAYER
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- WHITELIST MODAL -->
+
+    <div class="modal" id="whitelistModal">
+        <div class="modal-box">
+
+            <div class="modal-header">
+                <h2>WHITELIST USER</h2>
+                <button
+                    class="close-btn"
+                    onclick="closeModal('whitelistModal')"
+                    aria-label="Close"
+                >&times;</button>
+            </div>
+
+            <div class="modal-body">
+
+                <div id="whitelistMessage" class="message"></div>
+
+                <form id="whitelistForm">
+
+                    <div class="form-group">
+                        <label>USERNAME</label>
+                        <input
+                            type="text"
+                            name="username"
+                            class="form-control"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label>PASSWORD</label>
+                        <input
+                            type="password"
+                            name="password"
+                            class="form-control"
+                            required
+                        >
+                    </div>
+
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-gray"
+                            onclick="closeModal('whitelistModal')"
+                        >
+                            CANCEL
+                        </button>
+
+                        <button type="submit" class="btn btn-blue">
+                            WHITELIST
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- PLAYER PROFILE MODAL -->
+
+    <div class="modal" id="profileModal">
+
+        <div class="modal-box">
+
+            <div class="modal-header">
+                <h2>PLAYER PROFILE</h2>
+
+                <button
+                    class="close-btn"
+                    onclick="closeModal('profileModal')"
+                    aria-label="Close"
+                >&times;</button>
+            </div>
+
+            <div class="modal-body" id="profileContent"></div>
+
+        </div>
+    </div>
+
+    <script>
+        const currentUser = document.body.dataset.currentUser || "";
+        const defaultHead = document.body.dataset.defaultHead;
+
+        // PLAYER HEAD URL
+
+        function getPlayerHead(username) {
+            return `https://api.mcheads.org/head/${encodeURIComponent(username)}/32`;
+        }
+
+        // MODALS
+
+        function openModal(id) {
+            document.getElementById(id).classList.add("open");
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove("open");
+        }
+
+        document.querySelectorAll(".modal").forEach(modal => {
+            modal.addEventListener("click", event => {
+                if (event.target === modal) {
+                    modal.classList.remove("open");
+                }
+            });
+        });
+
+        document.addEventListener("keydown", event => {
+            if (event.key === "Escape") {
+                document.querySelectorAll(".modal.open").forEach(modal => {
+                    modal.classList.remove("open");
+                });
+            }
+        });
+
+        // MESSAGES
+
+        function showMessage(id, message, type) {
+            const element = document.getElementById(id);
+            element.textContent = message;
+            element.className = `message ${type}`;
+        }
+
+        // PLAYER SEARCH
+
+        const searchInput = document.getElementById("searchInput");
+
+        const playerRows = Array.from(
+            document.querySelectorAll(".player-row")
+        );
+
+        searchInput.addEventListener("input", function () {
+            const query = this.value.toLowerCase().trim();
+            let visibleCount = 0;
+
+            playerRows.forEach(row => {
+                const matches = row.dataset.search.includes(query);
+
+                row.hidden = !matches;
+
+                if (matches) {
+                    visibleCount++;
+                }
+            });
+
+            let emptyRow = document.querySelector(".search-empty-row");
+
+            if (visibleCount === 0) {
+                if (!emptyRow) {
+                    emptyRow = document.createElement("tr");
+                    emptyRow.className = "search-empty-row";
+
+                    const cell = document.createElement("td");
+                    cell.colSpan = 2;
+                    cell.className = "empty-state";
+                    cell.textContent = "No matching players found.";
+
+                    emptyRow.appendChild(cell);
+
+                    document.getElementById("playerTable").appendChild(emptyRow);
+                }
+            } else if (emptyRow) {
+                emptyRow.remove();
+            }
+        });
+
+        // PLAYER DATA
+
+        /*
+            Database row structure:
+
+            player[0] = username
+            player[1] = added_by
+            player[2] = tag
+            player[3] = notes
+            player[4] = time_added
+            player[5] = stats
+        */
+
+        function getPlayerData(player) {
+
+            // Support both database arrays and dictionaries.
+
+            if (Array.isArray(player)) {
+                return {
+                    username: player[0],
+                    addedBy: player[1],
+                    tag: player[2],
+                    notes: player[3],
+                    timeAdded: player[4],
+                    stats: player[5]
+                };
+            }
+
+            return {
+                username: player.username ?? player.name,
+                addedBy: player.added_by ?? player.addedBy,
+                tag: player.tag,
+                notes: player.notes ?? player.note,
+                timeAdded: player.time_added ?? player.timeAdded,
+                stats: player.stats
+            };
+        }
+
+        // PROFILE DETAIL CARD
+
+        function createDetail(icon, label, value, extraClass = "") {
+
+            const card = document.createElement("div");
+            card.className = "profile-detail";
+
+            const iconElement = document.createElement("div");
+            iconElement.className = "detail-icon";
+            iconElement.textContent = icon;
+
+            const content = document.createElement("div");
+            content.className = "detail-content";
+
+            const labelElement = document.createElement("div");
+            labelElement.className = "detail-label";
+            labelElement.textContent = label;
+
+            const valueElement = document.createElement("div");
+            valueElement.className = `detail-value ${extraClass}`;
+            valueElement.textContent =
+                value !== null && value !== undefined && value !== ""
+                    ? String(value)
+                    : "N/A";
+
+            content.append(labelElement, valueElement);
+            card.append(iconElement, content);
+
+            return card;
+        }
+
+        // STATS DASHBOARD
+
+        function createStatsSection(stats) {
+
+            const section = document.createElement("div");
+            section.className = "profile-stats";
+
+            const header = document.createElement("div");
+            header.className = "profile-stats-header";
+
+            const title = document.createElement("div");
+            title.className = "profile-stats-title";
+
+            const titleIcon = document.createElement("span");
+            titleIcon.textContent = "▥";
+
+            const titleText = document.createElement("span");
+            titleText.textContent = "STATS";
+
+            // Remove the default title styling from the icon.
+            title.append(titleIcon, titleText);
+
+            const status = document.createElement("span");
+            status.className = "stats-status";
+
+            header.append(title, status);
+
+            const body = document.createElement("div");
+            body.className = "profile-stats-body";
+
+            const noStats =
+                stats === null ||
+                stats === undefined ||
+                stats === "" ||
+                stats === "none" ||
+                stats === "None" ||
+                (typeof stats === "object" &&
+                    !Array.isArray(stats) &&
+                    Object.keys(stats).length === 0);
+
+            if (noStats) {
+
+                status.textContent = "NO STATS AVAILABLE";
+
+                const empty = document.createElement("div");
+                empty.className = "stats-empty";
+
+                const emptyIcon = document.createElement("div");
+                emptyIcon.className = "stats-empty-icon";
+                emptyIcon.textContent = "ⓘ";
+
+                const emptyContent = document.createElement("div");
+
+                const emptyTitle = document.createElement("div");
+                emptyTitle.className = "stats-empty-title";
+                emptyTitle.textContent = "No statistics available for this player yet.";
+
+                const emptyDescription = document.createElement("div");
+                emptyDescription.className = "stats-empty-description";
+                emptyDescription.textContent = "Stats will appear here in the future!";
+
+                emptyContent.append(emptyTitle, emptyDescription);
+                empty.append(emptyIcon, emptyContent);
+
+                body.appendChild(empty);
+
+            } else {
+
+                status.textContent = "PLAYER STATISTICS";
+
+                const grid = document.createElement("div");
+                grid.className = "stats-grid";
+
+                let statEntries;
+
+                if (typeof stats === "string") {
+                    try {
+                        stats = JSON.parse(stats);
+                    } catch {
+                        stats = {};
+                    }
+                }
+
+                if (Array.isArray(stats)) {
+                    statEntries = stats.map((value, index) => [
+                        `Stat ${index + 1}`,
+                        value
+                    ]);
+                } else if (typeof stats === "object" && stats !== null) {
+                    statEntries = Object.entries(stats);
+                } else {
+                    statEntries = [["Stats", stats]];
+                }
+
+                if (statEntries.length === 0) {
+                    status.textContent = "NO STATS AVAILABLE";
+
+                    const empty = document.createElement("div");
+                    empty.className = "stats-empty";
+                    empty.textContent = "No statistics available for this player yet.";
+
+                    body.appendChild(empty);
+
+                } else {
+
+                    statEntries.forEach(([key, value]) => {
+
+                        const card = document.createElement("div");
+                        card.className = "player-stat";
+
+                        const label = document.createElement("div");
+                        label.className = "player-stat-label";
+
+                        label.textContent = String(key)
+                            .replace(/_/g, " ")
+                            .toUpperCase();
+
+                        const statValue = document.createElement("div");
+                        statValue.className = "player-stat-value";
+
+                        if (value !== null && typeof value === "object") {
+                            statValue.textContent = JSON.stringify(value);
+                        } else {
+                            statValue.textContent = String(value ?? "N/A");
+                        }
+
+                        card.append(label, statValue);
+                        grid.appendChild(card);
+                    });
+
+                    body.appendChild(grid);
+                }
+            }
+
+            section.append(header, body);
+
+            return section;
+        }
+
+        // PLAYER PROFILE
+
+        playerRows.forEach(row => {
+
+            row.addEventListener("click", function () {
+
+                try {
+                    const player = JSON.parse(this.dataset.player);
+                    showPlayerProfile(player);
+
+                } catch (error) {
+                    console.error("Could not load player profile:", error);
+                }
+
+            });
+
+        });
+
+        function showPlayerProfile(player) {
+
+            const data = getPlayerData(player);
+
+            const username = data.username || "Unknown";
+            const tag = data.tag || "Uncategorized";
+
+            const content = document.getElementById("profileContent");
+
+            content.innerHTML = "";
+
+            // PROFILE HEADER
+
+            const hero = document.createElement("div");
+            hero.className = "profile-hero";
+
+            const head = document.createElement("img");
+            head.className = "profile-head";
+            head.src = getPlayerHead(username);
+            head.alt = `${username}'s Minecraft head`;
+
+            head.onerror = function () {
+                this.onerror = null;
+                this.src = defaultHead;
+            };
+
+            const identity = document.createElement("div");
+            identity.className = "profile-identity";
+
+            const name = document.createElement("div");
+            name.className = "profile-name";
+            name.textContent = username;
+
+            const tagBadge = document.createElement("span");
+            tagBadge.className = "profile-tag";
+            tagBadge.textContent = tag;
+
+            identity.append(name, tagBadge);
+            hero.append(head, identity);
+
+            content.appendChild(hero);
+
+            // INFORMATION CARDS
+
+            const details = document.createElement("div");
+            details.className = "profile-details";
+
+            details.append(
+                createDetail(
+                    "♟",
+                    "ADDED BY",
+                    data.addedBy
+                ),
+
+                createDetail(
+                    "◆",
+                    "TAG",
+                    tag,
+                    "red"
+                ),
+
+                createDetail(
+                    "▤",
+                    "NOTES / REASON",
+                    data.notes
+                ),
+
+                createDetail(
+                    "▦",
+                    "TIME ADDED",
+                    data.timeAdded
+                )
+            );
+
+            content.appendChild(details);
+
+            // STATS DASHBOARD
+
+            content.appendChild(createStatsSection(data.stats));
+
+            // FOOTER
+
+            const footer = document.createElement("div");
+            footer.className = "modal-footer";
+
+            const close = document.createElement("button");
+            close.className = "btn btn-gray";
+            close.textContent = "CLOSE";
+
+            close.onclick = function () {
+                closeModal("profileModal");
+            };
+
+            footer.appendChild(close);
+
+            content.appendChild(footer);
+
+            openModal("profileModal");
+        }
+
+        // ADD PLAYER
+
+        document.getElementById("addForm").addEventListener(
+            "submit",
+            async function (event) {
+
+                event.preventDefault();
+
+                const form = event.target;
+                const formData = new FormData(form);
+
+                const payload = {
+                    username: formData.get("username"),
+                    added_by: currentUser,
+                    tag: formData.get("tag"),
+                    notes: formData.get("note")
+                };
+
+                try {
+
+                    const response = await fetch("/add", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(
+                            result.error || "Failed to add player."
+                        );
+                    }
+
+                    showMessage(
+                        "addMessage",
+                        "Player added successfully!",
+                        "success"
+                    );
+
+                    form.reset();
+
+                    window.location.reload();
+
+                } catch (error) {
+
+                    showMessage(
+                        "addMessage",
+                        error.message,
+                        "error"
+                    );
+
+                }
+            }
+        );
+
+        // WHITELIST USER
+
+        document.getElementById("whitelistForm").addEventListener(
+            "submit",
+            async function (event) {
+
+                event.preventDefault();
+
+                const form = event.target;
+                const formData = new FormData(form);
+
+                const payload = {
+                    username: formData.get("username"),
+                    password: formData.get("password")
+                };
+
+                try {
+
+                    const response = await fetch("/whitelist_user", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(
+                            result.error || "Failed to whitelist user."
+                        );
+                    }
+
+                    showMessage(
+                        "whitelistMessage",
+                        "User whitelisted successfully!",
+                        "success"
+                    );
+
+                    form.reset();
+
+                    setTimeout(function () {
+
+                        closeModal("whitelistModal");
+
+                        document.getElementById(
+                            "whitelistMessage"
+                        ).className = "message";
+
+                    }, 1000);
+
+                } catch (error) {
+
+                    showMessage(
+                        "whitelistMessage",
+                        error.message,
+                        "error"
+                    );
+
+                }
+            }
+        );
+
+    </script>
+
+</body>
+</html>
