@@ -2,3 +2,4 @@
 database.db
 .DS_Store
 .env
+test.py
